@@ -36,18 +36,31 @@ interface
 type
   TMapTarget = record
   private
-    fSrcObj : TObject;
+    fSrcObj: TObject;
   public
-    constructor Create(aSrcObj : TObject);
-    function AsType<T : class, constructor> : T;
+    constructor Create(aSrcObj: TObject);
+    function AsType<T: class, constructor>: T;
   end;
 
   IMapper = interface
-  ['{A4EBC4BC-94D0-4F32-98FD-4888E1EF199A}']
-    procedure Map(aSrcObj, aTgtObj : TObject); overload;
-    function Map(aSrcObj : TObject) : TMapTarget; overload;
+    ['{A4EBC4BC-94D0-4F32-98FD-4888E1EF199A}']
+    procedure Map(aSrcObj, aTgtObj: TObject); overload;
+    function Map(aSrcObj: TObject): TMapTarget; overload;
   end;
 
 implementation
 
+{ TMapTarget }
+
+function TMapTarget.AsType<T>: T;
+begin
+
+end;
+
+constructor TMapTarget.Create(aSrcObj: TObject);
+begin
+  inherited;
+end;
+
 end.
+
