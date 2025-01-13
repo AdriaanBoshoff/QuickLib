@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 2.0
   Created     : 22/01/2021
-  Modified    : 25/01/2021
+  Modified    : 13/01/2025 (By Adriaan Boshoff)
 
   This file is part of QuickLib: https://github.com/exilon/QuickLib
 
@@ -34,36 +34,38 @@ unit Quick.Registry;
 interface
 
 uses
-  System.SysUtils,
-  Winapi.Windows,
-  System.Win.Registry;
+  System.SysUtils, Winapi.Windows, System.Win.Registry;
 
 type
   TRegRootKey = (rootCU, rootLM);
 
   TRegistryUtils = class
   public
-    class function GetNewReg(aRootKey : TRegRootKey; aReadOnly : Boolean = False) : TRegistry;
-    class function GetUniqueMachineId: TGUID; static;
-    class function IsDarkMode : Boolean;
+    class function GetNewReg(aRootKey: TRegRootKey; aReadOnly: Boolean = False): TRegistry;
+    class function GetUniqueMachineIdAsGUID: TGUID; static;
+    class function GetUniqueMachineIdAsString: string; static;
+    class function IsDarkMode: Boolean;
   end;
 
 implementation
 
-
-class function TRegistryUtils.GetNewReg(aRootKey : TRegRootKey; aReadOnly : Boolean = False) : TRegistry;
+class function TRegistryUtils.GetNewReg(aRootKey: TRegRootKey; aReadOnly: Boolean = False): TRegistry;
 begin
-  if aReadOnly then Result := TRegistry.Create(KEY_READ)
-    else Result := TRegistry.Create(KEY_ALL_ACCESS);
-  if aRootKey = TRegRootKey.rootCU then Result.RootKey := HKEY_CURRENT_USER
-    else Result.RootKey := HKEY_LOCAL_MACHINE;
+  if aReadOnly then
+    Result := TRegistry.Create(KEY_READ)
+  else
+    Result := TRegistry.Create(KEY_ALL_ACCESS);
+  if aRootKey = TRegRootKey.rootCU then
+    Result.RootKey := HKEY_CURRENT_USER
+  else
+    Result.RootKey := HKEY_LOCAL_MACHINE;
 end;
 
-class function TRegistryUtils.IsDarkMode : Boolean;
+class function TRegistryUtils.IsDarkMode: Boolean;
 var
-  reg : TRegistry;
+  reg: TRegistry;
 begin
-  reg := GetNewReg(TRegRootKey.rootCU,True);
+  reg := GetNewReg(TRegRootKey.rootCU, True);
   try
     reg.RootKey := HKEY_CURRENT_USER;
     reg.OpenKeyReadOnly('SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize');
@@ -73,17 +75,23 @@ begin
   end;
 end;
 
-class function TRegistryUtils.GetUniqueMachineId : TGUID;
-var
-  reg : TRegistry;
+class function TRegistryUtils.GetUniqueMachineIdAsGUID: TGUID;
 begin
-  reg := GetNewReg(TRegRootKey.rootLM,True);
+  Result := StringToGUID(TRegistryUtils.GetUniqueMachineIdAsString);
+end;
+
+class function TRegistryUtils.GetUniqueMachineIdAsString: string;
+var
+  reg: TRegistry;
+begin
+  reg := GetNewReg(TRegRootKey.rootLM, True);
   try
     reg.OpenKeyReadOnly('SOFTWARE\Microsoft\Cryptography');
-    Result := StringToGUID(reg.ReadString('MachineGuid'));
+    Result := reg.ReadString('MachineGuid');
   finally
     reg.Free;
   end;
 end;
 
 end.
+
